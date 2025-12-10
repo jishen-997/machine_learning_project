@@ -21,7 +21,8 @@ breast_cancer_project/
 │ └── wdbc.data # 数据集
 | └── wdbc.names # 数据集说明
 ├── src/ # 核心代码
-│ ├── load_data.py # 数据加载
+| ├── **init**.py # 初始化
+| |── load_data.py # 数据加载
 │ ├── preprocess.py # 预处理
 │ ├── feature_analysis.py # 特征分析
 │ ├── train_model.py # 模型训练
@@ -30,7 +31,7 @@ breast_cancer_project/
 ├── models/ # 保存模型
 │ └── decision_tree_model.pkl # 训练好的模型
 └── results/ # 结果
-├── figures/ # 图片
+| |── figures/ # 图片
 │ ├── decision_tree.png
 │ ├── feature_importance.png
 │ └── roc_curve.png

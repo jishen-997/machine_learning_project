@@ -2,12 +2,20 @@
 特征分析模块
 包括特征重要性评估和可视化
 """
+import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import seaborn as sns
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
+
+# ===== 设置matplotlib支持中文 =====
+# 全局字体设置
+mpl.rcParams['font.sans-serif'] = ['SimHei']  # Windows：黑体；Mac可替换为 'Arial Unicode MS'
+mpl.rcParams['axes.unicode_minus'] = False    # 解决负号显示为方块的问题
+mpl.rcParams['font.family'] = 'sans-serif'
 
 def calculate_feature_importance(X_train, y_train, feature_names, method='random_forest'):
     """
@@ -55,6 +63,12 @@ def plot_feature_importance(feature_importance_df, top_n=15, save_path=None):
         top_n (int): 显示前N个重要特征
         save_path (str): 图片保存路径
     """
+
+        # 获取保存路径的目录部分
+    save_dir = os.path.dirname(save_path)
+    # 创建多级目录，exist_ok=True 避免目录已存在时报错
+    os.makedirs(save_dir, exist_ok=True)
+
     # 选择前N个特征
     top_features = feature_importance_df.head(top_n)
     

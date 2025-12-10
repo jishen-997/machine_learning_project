@@ -2,6 +2,7 @@
 模型训练模块
 包括决策树模型的训练、评估和保存
 """
+import os
 import numpy as np
 import pandas as pd
 import joblib
@@ -147,8 +148,15 @@ class DecisionTreeModel:
         Args:
             filepath (str): 模型保存路径
         """
+
+        # ===== 新增：创建模型保存目录（关键）=====
+        # 获取文件路径的目录部分（../models/）
+        model_dir = os.path.dirname(filepath)
+        # 创建目录（exist_ok=True：目录已存在时不报错）
+        os.makedirs(model_dir, exist_ok=True)
+
         joblib.dump(self.model, filepath)
-        print(f"模型已保存到: {filepath}")
+        print(f"模型已保存到: {os.path.abspath(filepath)}")
     
     def load_model(self, filepath):
         """
