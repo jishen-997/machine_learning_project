@@ -1,8 +1,8 @@
-from src.load_data import load_data
-from src.preprocess import preprocess_data
-from src.feature_analysis import calculate_feature_importance, plot_feature_importance
-from src.train_model import train_decision_tree
-from src.visualize import plot_decision_tree, plot_roc_curve
+from load_data import load_data
+from preprocess import preprocess_data
+from feature_analysis import calculate_feature_importance, plot_feature_importance
+from train_model import train_decision_tree
+from visualize import plot_decision_tree, plot_roc_curve
 
 def main():
     # 加载数据
