@@ -5,6 +5,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.datasets import load_breast_cancer
+import os
 
 def load_data_from_file(file_path):
     """
@@ -73,7 +74,7 @@ def load_data_from_sklearn():
     X = data.data
     y = data.target
     feature_names = data.feature_names
-    target_names = data.target_names
+    target_names = ['良性 (B)', '恶性 (M)']  # 自定义名称以保持一致性
     
     print(f"从sklearn加载数据成功: {X.shape[0]} 个样本, {X.shape[1]} 个特征")
     print(f"类别分布: {target_names[0]}={sum(y==0)}, {target_names[1]}={sum(y==1)}")
@@ -91,7 +92,12 @@ def load_data():
     file_path = '../data/wdbc.data'
     
     try:
-        return load_data_from_file(file_path)
+        # 检查文件是否存在
+        if os.path.exists(file_path):
+            return load_data_from_file(file_path)
+        else:
+            print(f"文件 {file_path} 不存在，使用sklearn内置数据集")
+            return load_data_from_sklearn()
     except Exception as e:
         print(f"从文件加载失败: {e}")
         print("使用sklearn内置数据集")

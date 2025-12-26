@@ -63,11 +63,12 @@ def plot_feature_importance(feature_importance_df, top_n=15, save_path=None):
         top_n (int): 显示前N个重要特征
         save_path (str): 图片保存路径
     """
-
-        # 获取保存路径的目录部分
-    save_dir = os.path.dirname(save_path)
-    # 创建多级目录，exist_ok=True 避免目录已存在时报错
-    os.makedirs(save_dir, exist_ok=True)
+    # 获取保存路径的目录部分
+    if save_path:
+        save_dir = os.path.dirname(save_path)
+        # 创建多级目录，exist_ok=True 避免目录已存在时报错
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
 
     # 选择前N个特征
     top_features = feature_importance_df.head(top_n)
@@ -127,6 +128,9 @@ def analyze_correlations(X, feature_names, save_path=None):
     plt.tight_layout()
     
     if save_path:
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"相关性热力图已保存到: {save_path}")
     

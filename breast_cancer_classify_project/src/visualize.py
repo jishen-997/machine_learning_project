@@ -1,72 +1,45 @@
 """
 可视化模块
-包括决策树可视化、ROC曲线绘制等
+包括AdaBoost基分类器可视化、ROC曲线绘制等
 """
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from sklearn.tree import plot_tree
-import graphviz
-from sklearn.tree import export_graphviz
 
-def plot_decision_tree(model, feature_names, class_names, max_depth=4, save_path=None):
+def plot_adaboost_tree_stump(tree_stump, feature_names, class_names, save_path=None):
     """
-    绘制决策树结构图
+    绘制AdaBoost的决策树桩（基分类器）
     
     Args:
-        model: 决策树模型
+        tree_stump: 决策树桩模型
         feature_names (list): 特征名称列表
         class_names (list): 类别名称列表
-        max_depth (int): 显示的最大深度
         save_path (str): 图片保存路径
     """
-    plt.figure(figsize=(20, 12))
+    plt.figure(figsize=(8, 6))
     
-    # 绘制决策树
-    plot_tree(model, 
+    # 绘制决策树桩（深度为1）
+    plot_tree(tree_stump, 
               feature_names=feature_names,
               class_names=class_names,
               filled=True,
               rounded=True,
               fontsize=10,
-              max_depth=max_depth)
+              max_depth=1)
     
-    plt.title(f'决策树分类器 (最大深度={max_depth})', fontsize=16)
+    plt.title('AdaBoost基分类器（决策树桩）', fontsize=16)
     plt.tight_layout()
     
     if save_path:
+        import os
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f"决策树结构图已保存到: {save_path}")
+        print(f"AdaBoost决策树桩图已保存到: {save_path}")
     
     plt.show()
-
-def export_decision_tree_graphviz(model, feature_names, class_names, save_path):
-    """
-    导出决策树为Graphviz格式（可生成更美观的树图）
-    
-    Args:
-        model: 决策树模型
-        feature_names (list): 特征名称列表
-        class_names (list): 类别名称列表
-        save_path (str): 文件保存路径（不包含扩展名）
-    """
-    # 导出为dot格式
-    dot_data = export_graphviz(
-        model,
-        out_file=None,
-        feature_names=feature_names,
-        class_names=class_names,
-        filled=True,
-        rounded=True,
-        special_characters=True
-    )
-    
-    # 保存为dot文件
-    dot_file = save_path + '.dot'
-    with open(dot_file, 'w') as f:
-        f.write(dot_data)
-    
-    print(f"决策树Graphviz文件已保存到: {dot_file}")
-    print("可以使用以下命令转换为PNG: dot -Tpng {} -o {}.png".format(dot_file, save_path))
 
 def plot_roc_curve(fpr, tpr, auc_score, save_path=None):
     """
@@ -90,7 +63,7 @@ def plot_roc_curve(fpr, tpr, auc_score, save_path=None):
     plt.ylim([0.0, 1.05])
     plt.xlabel('假正例率 (False Positive Rate)', fontsize=12)
     plt.ylabel('真正例率 (True Positive Rate)', fontsize=12)
-    plt.title('ROC曲线', fontsize=16)
+    plt.title('AdaBoost模型ROC曲线', fontsize=16)
     plt.legend(loc='lower right')
     plt.grid(alpha=0.3)
     
@@ -99,6 +72,9 @@ def plot_roc_curve(fpr, tpr, auc_score, save_path=None):
              bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.8))
     
     if save_path:
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"ROC曲线图已保存到: {save_path}")
     
@@ -124,7 +100,7 @@ def plot_confusion_matrix(cm, class_names, save_path=None):
            yticks=np.arange(cm.shape[0]),
            xticklabels=class_names,
            yticklabels=class_names,
-           title='混淆矩阵',
+           title='AdaBoost模型混淆矩阵',
            ylabel='真实类别',
            xlabel='预测类别')
     
@@ -142,68 +118,60 @@ def plot_confusion_matrix(cm, class_names, save_path=None):
     fig.tight_layout()
     
     if save_path:
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"混淆矩阵图已保存到: {save_path}")
     
     plt.show()
 
-def plot_feature_distributions(X, y, feature_names, target_names, top_n=5, save_path=None):
+def plot_adaboost_convergence(model, X_test, y_test, save_path=None):
     """
-    绘制重要特征的分布图
+    绘制AdaBoost模型随着弱分类器数量增加的性能收敛曲线
     
     Args:
-        X (np.ndarray): 特征矩阵
-        y (np.ndarray): 目标变量
-        feature_names (list): 特征名称列表
-        target_names (list): 目标类别名称列表
-        top_n (int): 显示前N个特征
-        save_path (str): 图片保存路径（前缀）
+        model: 训练好的AdaBoost模型
+        X_test: 测试集特征
+        y_test: 测试集标签
+        save_path: 图片保存路径
     """
-    import pandas as pd
+    # 获取模型在不同迭代阶段的预测
+    n_estimators = len(model.estimators_)
+    accuracy_scores = []
     
-    # 创建DataFrame
-    df = pd.DataFrame(X, columns=feature_names)
-    df['diagnosis'] = y
+    # 逐步增加弱分类器数量，计算准确率
+    for i in range(1, n_estimators + 1):
+        # 使用前i个弱分类器进行预测
+        y_pred = model.predict(X_test, n_estimators=i)
+        accuracy = np.mean(y_pred == y_test)
+        accuracy_scores.append(accuracy)
     
-    # 计算特征与目标的相关性
-    correlations = []
-    for feature in feature_names:
-        corr = np.corrcoef(df[feature], y)[0, 1]
-        correlations.append((feature, abs(corr)))
+    # 绘制收敛曲线
+    plt.figure(figsize=(10, 6))
+    plt.plot(range(1, n_estimators + 1), accuracy_scores, marker='o', linestyle='-', color='b')
+    plt.xlabel('弱分类器数量', fontsize=12)
+    plt.ylabel('测试集准确率', fontsize=12)
+    plt.title('AdaBoost模型收敛曲线', fontsize=16)
+    plt.grid(alpha=0.3)
+    plt.ylim([0.8, 1.0])  # 根据实际情况调整
     
-    # 按相关性排序
-    correlations.sort(key=lambda x: x[1], reverse=True)
-    top_features = [feat for feat, _ in correlations[:top_n]]
+    # 标记最佳准确率
+    best_acc = max(accuracy_scores)
+    best_idx = accuracy_scores.index(best_acc)
+    plt.plot(best_idx + 1, best_acc, 'ro', markersize=10)
+    plt.annotate(f'最佳: {best_acc:.4f}', 
+                 xy=(best_idx + 1, best_acc),
+                 xytext=(best_idx + 5, best_acc - 0.02),
+                 arrowprops=dict(facecolor='black', shrink=0.05))
     
-    # 绘制分布图
-    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
-    axes = axes.ravel()
-    
-    for i, feature in enumerate(top_features[:6]):  # 最多显示6个特征
-        # 良性样本
-        benign_data = df[df['diagnosis'] == 0][feature]
-        # 恶性样本
-        malignant_data = df[df['diagnosis'] == 1][feature]
-        
-        axes[i].hist(benign_data, alpha=0.5, label=target_names[0], bins=30, color='skyblue')
-        axes[i].hist(malignant_data, alpha=0.5, label=target_names[1], bins=30, color='salmon')
-        
-        axes[i].set_xlabel(feature)
-        axes[i].set_ylabel('频数')
-        axes[i].set_title(f'{feature}分布')
-        axes[i].legend()
-        axes[i].grid(alpha=0.3)
-    
-    # 如果特征少于6个，隐藏多余的子图
-    for i in range(len(top_features[:6]), 6):
-        fig.delaxes(axes[i])
-    
-    plt.suptitle('Top特征分布对比 (按与目标的相关性排序)', fontsize=16)
     plt.tight_layout()
     
     if save_path:
-        full_path = f"{save_path}_feature_distributions.png"
-        plt.savefig(full_path, dpi=300, bbox_inches='tight')
-        print(f"特征分布图已保存到: {full_path}")
+        save_dir = os.path.dirname(save_path)
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+        print(f"收敛曲线图已保存到: {save_path}")
     
     plt.show()

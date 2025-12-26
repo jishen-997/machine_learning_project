@@ -1,87 +1,91 @@
-# 威斯康星乳腺癌分类项目
+####乳腺癌诊断系统 - AdaBoost 算法####
+项目简介
+使用 AdaBoost 集成学习算法对威斯康星乳腺癌数据集进行分类分析。
 
-## 项目简介
+快速开始
 
-本项目基于威斯康星乳腺癌数据集，使用决策树算法构建肿瘤良恶性分类模型。项目包含了数据预处理、特征分析、模型训练、可视化展示和结果评估全流程。
+1. 安装依赖
+   bash
+   pip install -r requirements.txt
+2. 运行程序
+   bash
+   python run.py
+   项目结构
+   text
+   BREAST_CANCER_CLASSIFY_PRO/
+   ├── data/ # 数据集
+   │ ├── wdbc.data # 原始数据文件
+   │ └── wdbc.names # 数据描述文件
+   ├── models/ # 模型保存
+   │ └── adaboost_model.pkl # AdaBoost 模型
+   ├── results/ # 结果输出
+   │ └── figures/ # 可视化图表
+   ├── src/ # 源代码
+   │ ├── load_data.py # 数据加载
+   │ ├── preprocess.py # 数据预处理
+   │ ├── feature_analysis.py # 特征分析
+   │ ├── adaboost_model.py # AdaBoost 模型
+   │ ├── visualize.py # 可视化
+   │ └── main.py # 主程序
+   ├── run.py # 运行脚本
+   ├── requirements.txt # 依赖包
+   └── README.md # 项目说明
+   算法说明
+   AdaBoost 原理
+   AdaBoost（自适应增强）通过组合多个弱分类器（决策树桩）构建强分类器：
 
-## 数据集
+初始化样本权重
 
-- **名称**：威斯康星乳腺癌数据集 (Wisconsin Breast Cancer Dataset)
-- **来源**：UCI 机器学习库
-- **样本数**：569 例
-- **特征数**：30 个细胞核特征
-- **目标变量**：诊断结果（良性/恶性）
+迭代训练弱分类器（决策树桩）
 
-## 项目结构
+根据错误率调整样本权重
 
-breast_cancer_project/
-├── README.md # 项目说明
-├── requirements.txt # 依赖包
-├── data/ # 数据目录
-│ └── wdbc.data # 数据集
-| └── wdbc.names # 数据集说明
-├── src/ # 核心代码
-| ├── **init**.py # 初始化
-| |── load_data.py # 数据加载
-│ ├── preprocess.py # 预处理
-│ ├── feature_analysis.py # 特征分析
-│ ├── train_model.py # 模型训练
-│ └── visualize.py # 可视化
-| └── main.py # 主程序
-├── models/ # 保存模型
-│ └── decision_tree_model.pkl # 训练好的模型
-└── results/ # 结果
-| |── figures/ # 图片
-│ ├── decision_tree.png
-│ ├── feature_importance.png
-│ └── roc_curve.png
-└── report.pdf # 报告
+加权组合弱分类器
 
+参数设置
+n_estimators=50：50 个决策树桩
+
+learning_rate=1.0：学习率
+
+base_estimator=DecisionTreeClassifier(max_depth=1)：基分类器为深度 1 的决策树
+
+数据集
+威斯康星乳腺癌诊断数据集
+
+569 个样本（212 恶性，357 良性）
+
+30 个特征（半径、纹理、周长等）
+
+二分类任务（恶性/良性）
+
+预期结果
+运行后将生成：
+
+控制台输出：模型训练过程和性能评估
+
+可视化图表：
+
+特征重要性图
+
+特征相关性热力图
+
+决策树桩可视化
+
+ROC 曲线图
+
+模型文件：models/adaboost_model.pkl
+
+依赖包
 text
+numpy>=1.21.0
+pandas>=1.3.0
+scikit-learn>=1.0.0
+matplotlib>=3.4.0
+seaborn>=0.11.0
+joblib>=1.1.0
+注意事项
+确保 Python 版本为 3.8+
 
-## 安装与运行
+首次运行前需安装依赖包
 
-### 环境要求
-
-- Python 3.7+
-- 安装依赖包：`pip install -r requirements.txt`
-
-### 运行方式
-
-1. 安装依赖：`pip install -r requirements.txt`
-2. 下载数据集：将 wdbc.data 文件放在 data/目录下
-3. 运行 Python 脚本：`python src/main.py`
-
-## 主要功能
-
-1. **数据加载与探索**：加载 WBCD 数据集并进行基本统计分析
-2. **数据预处理**：数据标准化、训练测试集划分
-3. **特征分析**：特征重要性评估和可视化
-4. **模型训练**：决策树分类器训练
-5. **模型评估**：准确率、精确率、召回率、F1 分数等指标
-6. **可视化展示**：决策树结构、特征重要性、ROC 曲线等
-
-## 模型性能
-
-基础决策树模型在测试集上的表现：
-
-- 准确率：约 94%
-- 精确率：约 96%
-- 召回率：约 92%
-- F1 分数：约 94%
-
-## 文件说明
-
--
-- `src/`目录：模块化的 Python 代码，便于复用和扩展
-- `models/`目录：保存训练好的模型
-- `results/`目录：生成的图表和报告
-
-## 作者
-
-[吴极/20233001585]
-
-## 参考
-
-- UCI 机器学习库：https://archive.ics.uci.edu/ml/datasets/Breast+Cancer+Wisconsin+%28Diagnostic%29
-- Scikit-learn：https://scikit-learn.org/stable/
+如缺少数据文件，程序会自动从 scikit-learn 加载
